@@ -105,7 +105,6 @@ fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, p
     let total_bar_width = width - total_spacing;
     let bar_width = total_bar_width / num_bars;
     let bar_spacing = total_spacing / (num_bars - 1.0);
-
     let axis_padding = 50.0;
 
     // context.set_fill_style(&JsValue::from_str("blue"));
@@ -154,5 +153,48 @@ fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, p
         let x = axis_padding + i as f64 * (bar_width + bar_spacing) + bar_width / 2.0;
         let y = height - axis_padding / 2.0;
         context.fill_text(label, x, y).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    wasm_bindgen_test_configure!(run_in_browser);
+    
+    // Function to create a mock CanvasRenderingContext2d
+    fn mock_context() -> CanvasRenderingContext2d {
+        // Create a canvas element
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+        
+        // Get the 2D context from the canvas
+        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+    }
+
+    #[wasm_bindgen_test]
+    fn test_draw_bar_chart() {
+        let context = mock_context();
+        let width = 500.0;
+        let height = 400.0;
+
+        let data = vec![
+            DataPoint { name: "A".to_string(), value: 10 },
+            DataPoint { name: "B".to_string(), value: 20 },
+            DataPoint { name: "C".to_string(), value: 15 },
+        ];
+
+        let props = BarChartProps {
+            data,
+            config: None,
+        };
+
+        draw_bar_chart(&context, width, height, &props);
+
+        // Additional assertions would be needed to validate the correct behavior,
+        // e.g., checking if certain methods were called or if certain values were set.
+        // Since we cannot directly inspect the canvas from here, we assume success if no panic occurs.
+        assert!(true);
     }
 }

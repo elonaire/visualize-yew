@@ -155,3 +155,51 @@ fn draw_line_curve_chart(context: &CanvasRenderingContext2d, width: f64, height:
         context.fill_text(label, x, y).unwrap();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    wasm_bindgen_test_configure!(run_in_browser);
+    
+    // Function to create a mock CanvasRenderingContext2d
+    fn mock_context() -> CanvasRenderingContext2d {
+        // Create a canvas element
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+        
+        // Get the 2D context from the canvas
+        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+    }
+
+    #[wasm_bindgen_test]
+    fn test_draw_line_curve_chart() {
+        let context = mock_context();
+
+        let props = LineCurveChartProps {
+            data: vec![
+                DataPoint { name: "Jan".to_string(), value: 10 },
+                DataPoint { name: "Feb".to_string(), value: 20 },
+                DataPoint { name: "Mar".to_string(), value: 15 },
+                DataPoint { name: "Apr".to_string(), value: 25 },
+                DataPoint { name: "May".to_string(), value: 30 },
+                DataPoint { name: "Jun".to_string(), value: 20 },
+                DataPoint { name: "Jul".to_string(), value: 35 },
+                DataPoint { name: "Aug".to_string(), value: 40 },
+                DataPoint { name: "Sep".to_string(), value: 30 },
+                DataPoint { name: "Oct".to_string(), value: 45 },
+                DataPoint { name: "Nov".to_string(), value: 50 },
+                DataPoint { name: "Dec".to_string(), value: 40 },
+            ],
+            config: None,
+        };
+
+        draw_line_curve_chart(&context, 800.0, 400.0, &props);
+
+        // Additional assertions would be needed to validate the correct behavior,
+        // e.g., checking if certain methods were called or if certain values were set.
+        // Since we cannot directly inspect the canvas from here, we assume success if no panic occurs.
+        assert!(true);
+    }
+}

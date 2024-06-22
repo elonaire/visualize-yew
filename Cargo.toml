@@ -3,11 +3,23 @@ name = "visualize-yew"
 version = "0.20.0"
 edition = "2021"
 
+[features]
+default = ["BarChart"]
+BarChart = []
+PieChart = []
+LineChart = []
+MultilineChart = ["LineChart"]
+DoughnutChart = []
+
+
 [dependencies]
 yew = { version="0.20", features=["csr"] }
 web-sys = { version = "0.3.69", features = ["HtmlSelectElement", "HtmlDocument", "HtmlCanvasElement", "CanvasRenderingContext2d"]}
 gloo = "0.11.0"
 rand = "0.8.5"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
 
 [package.metadata.docs.rs]
 no-deps = true

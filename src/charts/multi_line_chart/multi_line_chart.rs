@@ -161,3 +161,41 @@ fn draw_multiline_chart(context: &CanvasRenderingContext2d, width: f64, height: 
         context.fill_text(label, legend_x + 20.0, text_y).unwrap();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    wasm_bindgen_test_configure!(run_in_browser);
+    
+    // Function to create a mock CanvasRenderingContext2d
+    fn mock_context() -> CanvasRenderingContext2d {
+        // Create a canvas element
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+        
+        // Get the 2D context from the canvas
+        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+    }
+
+    #[wasm_bindgen_test]
+    fn test_draw_multiline_chart() {
+        let context = mock_context();
+        let width = 800.0;
+        let height = 600.0;
+        let props = MultilineChartProps {
+            data: vec![
+                ("Dataset 1".to_string(), vec![(0, 10), (1, 20), (2, 30), (3, 40), (4, 50)], "#ff0000".to_string()),
+                ("Dataset 2".to_string(), vec![(0, 50), (1, 40), (2, 30), (3, 20), (4, 10)], "#00ff00".to_string()),
+            ],
+        };
+
+        draw_multiline_chart(&context, width, height, &props);
+
+        // Additional assertions would be needed to validate the correct behavior,
+        // e.g., checking if certain methods were called or if certain values were set.
+        // Since we cannot directly inspect the canvas from here, we assume success if no panic occurs.
+        assert!(true);
+    }
+}

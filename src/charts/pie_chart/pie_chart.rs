@@ -129,3 +129,44 @@ pub fn draw_pie_chart(context: &CanvasRenderingContext2d, width: f64, height: f6
         start_angle += slice_angle;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    wasm_bindgen_test_configure!(run_in_browser);
+    
+    // Function to create a mock CanvasRenderingContext2d
+    fn mock_context() -> CanvasRenderingContext2d {
+        // Create a canvas element
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+        
+        // Get the 2D context from the canvas
+        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+    }
+
+    #[wasm_bindgen_test]
+    fn test_draw_pie_chart() {
+        let context = mock_context();
+        let width = 800.0;
+        let height = 600.0;
+        let props = PieChartProps {
+            data: vec![
+                DataPoint { name: "A".to_string(), value: 10 },
+                DataPoint { name: "B".to_string(), value: 20 },
+                DataPoint { name: "C".to_string(), value: 30 },
+                DataPoint { name: "D".to_string(), value: 40 },
+            ],
+            config: None,
+        };
+
+        draw_pie_chart(&context, width, height, &props);
+
+        // Additional assertions would be needed to validate the correct behavior,
+        // e.g., checking if certain methods were called or if certain values were set.
+        // Since we cannot directly inspect the canvas from here, we assume success if no panic occurs.
+        assert!(true);
+    }
+}
