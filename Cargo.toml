@@ -8,3 +8,6 @@ yew = { version="0.20", features=["csr"] }
 web-sys = { version = "0.3.69", features = ["HtmlSelectElement", "HtmlDocument", "HtmlCanvasElement", "CanvasRenderingContext2d"]}
 gloo = "0.11.0"
 rand = "0.8.5"
+
+[package.metadata.docs.rs]
+no-deps = true
