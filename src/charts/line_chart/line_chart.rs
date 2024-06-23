@@ -2,22 +2,38 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, window, wasm_bindgen:
 use yew::prelude::*;
 use gloo::events::EventListener;
 
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LineCurveChartConfig {
     // Add configuration properties here
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Properties)]
 pub struct DataPoint {
-    pub name: String,
-    pub value: i32,
+    pub x: String, // independent variable
+    pub y: i32, // dependent variable
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Properties)]
+pub struct Series {
+    pub name: String,
+    pub color: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Properties)]
 pub struct LineCurveChartProps {
-    pub data: Vec<DataPoint>,
-    pub config: Option<LineCurveChartConfig>,
+    pub data: Vec<(Series, Vec<DataPoint>)>,
+    pub x: Vec<String>
+}
+
+impl LineCurveChartProps {
+    pub fn new(data: Vec<(Series, Vec<DataPoint>)>, x: Vec<String>) -> Self {
+        for (_series, series_data) in data.iter() {
+            if series_data.len() != x.len() {
+                panic!("The number of series and the number of x-axis labels must match");
+            }
+        }
+        Self { data, x }
+    }
 }
 
 #[function_component]
@@ -55,7 +71,7 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
                     // Scale the context to account for the device pixel ratio
                     context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
 
-                    draw_line_curve_chart(&context, width, height, &props_clone_resize);
+                    draw_multiline_chart(&context, width, height, &props_clone_resize);
                 }
             };
 
@@ -74,16 +90,18 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
     }
 }
 
-fn draw_line_curve_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &LineCurveChartProps) {
-    let data = props.data.iter().map(|point| point.value).collect::<Vec<i32>>();
-   
+fn draw_multiline_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &LineCurveChartProps) {
+    let datasets = &props.data;
+
     let axis_padding = 50.0;
-    let max_value = *data.iter().max().unwrap() as f64 * 1.2;
-    let num_points = data.len() as f64;
+    let max_value = datasets.iter()
+        .flat_map(|(_, data)| data.iter().map(|datapoint| datapoint.y))
+        .max()
+        // .cloned()
+        .unwrap_or(0) as f64 * 1.2;
+    let num_points = datasets.first().unwrap().1.len() as f64;
     let point_spacing = (width - axis_padding * 2.0) / (num_points - 1.0);
 
-    context.set_stroke_style(&JsValue::from_str("blue"));
-    context.set_line_width(2.0);
     context.set_fill_style(&JsValue::from_str("white"));
     context.clear_rect(0.0, 0.0, width, height);
 
@@ -110,49 +128,66 @@ fn draw_line_curve_chart(context: &CanvasRenderingContext2d, width: f64, height:
         context.fill_text(&format!("{}", label), axis_padding - 10.0, y).unwrap();
     }
 
-    // Draw the smooth line curve with outward curves
-    context.set_stroke_style(&JsValue::from_str("red"));
-    context.set_line_width(2.0);
-    context.begin_path();
-    context.move_to(axis_padding, height - axis_padding - (data[0] as f64 / max_value) * (height - axis_padding * 2.0));
+    // Draw each dataset as a separate line
+    for (series, data) in datasets {
+        context.set_stroke_style(&JsValue::from_str(series.color.as_str()));
+        context.set_line_width(2.0);
 
-    for i in 1..data.len() {
-        let x = axis_padding + i as f64 * point_spacing;
-        let y = height - axis_padding - (data[i] as f64 / max_value) * (height - axis_padding * 2.0);
-
-        let prev_x = axis_padding + (i - 1) as f64 * point_spacing;
-        let prev_y = height - axis_padding - (data[i - 1] as f64 / max_value) * (height - axis_padding * 2.0);
-
-        let ctrl1_x = prev_x + point_spacing / 3.0;
-        let ctrl1_y = prev_y;
-
-        let ctrl2_x = x - point_spacing / 3.0;
-        let ctrl2_y = y;
-
-        context.bezier_curve_to(ctrl1_x, ctrl1_y, ctrl2_x, ctrl2_y, x, y);
-    }
-
-    context.stroke();
-
-    // Add colored dots at inflection points
-    context.set_fill_style(&JsValue::from_str("red"));
-    for i in 0..data.len() {
-        let x = axis_padding + i as f64 * point_spacing;
-        let y = height - axis_padding - (data[i] as f64 / max_value) * (height - axis_padding * 2.0);
         context.begin_path();
-        context.arc(x, y, 3.0, 0.0, std::f64::consts::PI * 2.0).unwrap();
-        context.fill();
+        context.move_to(axis_padding, height - axis_padding - (data[0].y as f64 / max_value) * (height - axis_padding * 2.0));
+
+        for i in 1..data.len() {
+            let x = axis_padding + i as f64 * point_spacing;
+            let y = height - axis_padding - (data[i].y as f64 / max_value) * (height - axis_padding * 2.0);
+
+            let prev_x = axis_padding + ((i-1) as f64) * point_spacing;
+            let prev_y = height - axis_padding - (data[i-1].y as f64 / max_value) * (height - axis_padding * 2.0);
+
+            let ctrl1_x = prev_x + point_spacing / 3.0;
+            let ctrl1_y = prev_y;
+
+            let ctrl2_x = x - point_spacing / 3.0;
+            let ctrl2_y = y;
+
+            context.bezier_curve_to(ctrl1_x, ctrl1_y, ctrl2_x, ctrl2_y, x, y);
+        }
+        context.stroke();
+
+        // Add colored dots at inflection points
+        context.set_fill_style(&JsValue::from_str(series.color.as_str()));
+        for (i, datapoint) in data.iter().enumerate() {
+            let x = axis_padding + i as f64 * point_spacing;
+            let y = height - axis_padding - (datapoint.y as f64 / max_value) * (height - axis_padding * 2.0);
+            context.begin_path();
+            context.arc(x, y, 3.0, 0.0, std::f64::consts::PI * 2.0).unwrap();
+            context.fill();
+        }
     }
 
     // Add x-axis labels
     context.set_fill_style(&JsValue::from_str("black"));
     context.set_text_align("center");
     context.set_text_baseline("middle");
-    let labels = props.data.iter().map(|point| &point.name).collect::<Vec<&String>>();
-    for (i, &label) in labels.iter().enumerate() {
+    
+    let x_labels = props.x.clone().into_iter();
+    for (i, x_label) in x_labels.enumerate() {
         let x = axis_padding + i as f64 * point_spacing;
         let y = height - axis_padding / 2.0;
-        context.fill_text(label, x, y).unwrap();
+        context.fill_text(x_label.as_str(), x, y).unwrap();
+    }
+
+    // Add legend for index map
+    let legend_x = width - axis_padding - 200.0;
+    let legend_y = axis_padding;
+
+    for (i, current_series) in datasets.iter().enumerate() {
+        let text_y = legend_y + i as f64 * 20.0;
+        
+        context.set_fill_style(&JsValue::from_str(current_series.0.color.as_str()));
+        context.fill_rect(legend_x, text_y - 10.0, 10.0, 10.0);
+
+        context.set_fill_style(&JsValue::from_str("black"));
+        context.fill_text(current_series.0.name.as_str(), legend_x + 20.0, text_y).unwrap();
     }
 }
 
@@ -174,28 +209,37 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn test_draw_line_curve_chart() {
+    fn test_draw_multiline_chart() {
         let context = mock_context();
-
-        let props = LineCurveChartProps {
-            data: vec![
-                DataPoint { name: "Jan".to_string(), value: 10 },
-                DataPoint { name: "Feb".to_string(), value: 20 },
-                DataPoint { name: "Mar".to_string(), value: 15 },
-                DataPoint { name: "Apr".to_string(), value: 25 },
-                DataPoint { name: "May".to_string(), value: 30 },
-                DataPoint { name: "Jun".to_string(), value: 20 },
-                DataPoint { name: "Jul".to_string(), value: 35 },
-                DataPoint { name: "Aug".to_string(), value: 40 },
-                DataPoint { name: "Sep".to_string(), value: 30 },
-                DataPoint { name: "Oct".to_string(), value: 45 },
-                DataPoint { name: "Nov".to_string(), value: 50 },
-                DataPoint { name: "Dec".to_string(), value: 40 },
+        let width = 800.0;
+        let height = 600.0;
+        // let props = LineCurveChartProps {
+        //     data: vec![
+        //         ("Dataset 1".to_string(), vec![(0, 10), (1, 20), (2, 30), (3, 40), (4, 50)], "#ff0000".to_string()),
+        //         ("Dataset 2".to_string(), vec![(0, 50), (1, 40), (2, 30), (3, 20), (4, 10)], "#00ff00".to_string()),
+        //     ],
+        // };
+        let props = LineCurveChartProps::new(
+            vec![
+                (Series { name: "Dataset 1".to_string(), color: "#ff0000".to_string() }, vec![
+                    DataPoint { x: "0".to_string(), y: 10 },
+                    DataPoint { x: "1".to_string(), y: 20 },
+                    DataPoint { x: "2".to_string(), y: 15 },
+                    DataPoint { x: "3".to_string(), y: 40 },
+                    DataPoint { x: "4".to_string(), y: 30 },
+                ]),
+                (Series { name: "Dataset 2".to_string(), color: "#00ff00".to_string() }, vec![
+                    DataPoint { x: "0".to_string(), y: 50 },
+                    DataPoint { x: "1".to_string(), y: 40 },
+                    DataPoint { x: "2".to_string(), y: 30 },
+                    DataPoint { x: "3".to_string(), y: 35 },
+                    DataPoint { x: "4".to_string(), y: 20 },
+                ]),
             ],
-            config: None,
-        };
+            vec!["0".to_string(), "1".to_string(), "2".to_string(), "3".to_string(), "4".to_string()]
+        );
 
-        draw_line_curve_chart(&context, 800.0, 400.0, &props);
+        draw_multiline_chart(&context, width, height, &props);
 
         // Additional assertions would be needed to validate the correct behavior,
         // e.g., checking if certain methods were called or if certain values were set.

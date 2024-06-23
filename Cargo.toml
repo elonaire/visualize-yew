@@ -7,8 +7,7 @@ edition = "2021"
 default = ["BarChart"]
 BarChart = []
 PieChart = []
-LineChart = []
-MultilineChart = ["LineChart"]
+LineCurveChart = []
 DoughnutChart = []
 
 
