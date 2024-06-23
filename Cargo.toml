@@ -4,7 +4,7 @@ version = "0.20.0-alpha.1"
 edition = "2021"
 description = "A simple data visualization library for Yew"
 license = "MIT OR Apache-2.0"
-license-file = "LICENSE-APACHE or LICENSE-MIT"
+license-file = "./LICENSE-APACHE or ./LICENSE-MIT"
 authors = ["Elon Aseneka <[elon@techietenka.com]>"]
 
 [features]
