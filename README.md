@@ -6,13 +6,13 @@ This crate is still in development and is not yet ready for production use. The 
 This crate is built using the [yew](https://yew.rs/docs/en/) framework and uses HTML5 canvas to render the charts.
 
 ## Features
-- [x] PieChart
+- [x] PieChart\
     ![PieChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/4401284a-6498-4e19-d2c8-865dc95e9f00/public)
-- [x] LineChart
+- [x] LineChart\
     ![LineChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/d33bc074-207d-417d-18b6-af93594d0700/public)
-- [x] BarChart
+- [x] BarChart\
     ![BarChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/194517a9-7a9b-4248-3acf-436dcb3fc700/public)
-- [x] DoughnutChart
+- [x] DoughnutChart\
     ![DoughnutChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/6c66a389-9f66-4cc3-a8d3-fbfe9e9e9400/public)
 
 ## Usage
