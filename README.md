@@ -9,16 +9,16 @@ This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/int
 
 ## Features
 - [x] PieChart
-    <!-- ![PieChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/4401284a-6498-4e19-d2c8-865dc95e9f00/public) -->
+
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/4401284a-6498-4e19-d2c8-865dc95e9f00/public" width="200">
 - [x] LineChart
-    <!-- ![LineChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/d33bc074-207d-417d-18b6-af93594d0700/public) -->
+
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/d33bc074-207d-417d-18b6-af93594d0700/public" width="200">
 - [x] BarChart
-    <!-- ![BarChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/194517a9-7a9b-4248-3acf-436dcb3fc700/public) -->
+
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/194517a9-7a9b-4248-3acf-436dcb3fc700/public" width="200">
 - [x] DoughnutChart
-    <!-- ![DoughnutChart](https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/6c66a389-9f66-4cc3-a8d3-fbfe9e9e9400/public) -->
+
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/6c66a389-9f66-4cc3-a8d3-fbfe9e9e9400/public" width="200">
 
 ## Usage
