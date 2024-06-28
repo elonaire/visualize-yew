@@ -20,10 +20,10 @@ This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/int
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/2fd337b3-4c77-45b8-8195-0ac85496e700/public" width="200">
 - [x] LineChart
 
-    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/509533f0-8ab1-4333-2b22-408c2b8d1e00/public" width="200">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/509533f0-8ab1-4333-2b22-408c2b8d1e00/public" width="400">
 - [x] BarChart
 
-    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/ff0d07c0-681e-43a8-349c-571c1d389b00/public" width="200">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/ff0d07c0-681e-43a8-349c-571c1d389b00/public" width="400">
 - [x] DoughnutChart
 
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/f30b8b58-668c-45ce-3923-5e9840abe400/public" width="200">
