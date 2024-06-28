@@ -1,5 +1,6 @@
 # Visualize Yew
 ![Visualize Yew CI](https://github.com/elonaire/visualize-yew/actions/workflows/main.yml/badge.svg)
+![Stable Version](https://img.shields.io/crates/v/visualize-yew)
 
 This is a simple crate to help you visualize your data in the browser using Yew. It is a wrapper around the yew crate that provides a simple API to create charts.
 
