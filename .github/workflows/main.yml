@@ -44,4 +44,20 @@ jobs:
           profile: minimal
       - name: Publish to crates.io
         run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
+
+  automerge:
+    runs-on: ubuntu-latest
+
+    needs: [tests, publish]
+    if: |
+      always() &&
+      (needs.tests.result == 'success' && needs.publish.result == 'success')
+
+    steps:
+      - id: automerge
+        name: automerge
+        uses: 'pascalgn/automerge-action@v0.15.5'
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          MERGE_LABELS: ''
         
