@@ -1,6 +1,6 @@
 [package]
 name = "visualize-yew"
-version = "0.20.8"
+version = "0.20.9"
 edition = "2021"
 description = "A simple data visualization library for Yew"
 license = "MIT OR Apache-2.0"
