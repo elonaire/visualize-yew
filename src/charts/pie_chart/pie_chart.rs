@@ -4,20 +4,24 @@ use gloo::events::EventListener;
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
 pub struct PieChartConfig {
-    pub text_align: Option<String>,
+    #[prop_or("center".to_string())]
+    pub text_align: String,
+    #[prop_or(true)]
+    pub show_legend: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DataPoint {
     pub name: String,
     pub value: i32,
+    pub color: String,
 }
 
 #[derive(Clone, Properties, PartialEq, Debug, Eq)]
 pub struct PieChartProps {
     pub data: Vec<DataPoint>,
     #[prop_or(Default::default())]
-    pub config: Option<PieChartConfig>,
+    pub config: PieChartConfig,
 }
 
 // #[cfg(feature = "PieChart")]
@@ -51,7 +55,12 @@ pub fn PieChart(props: &PieChartProps) -> Html {
 
                     // Set the canvas dimensions to match its parent's dimensions
                     canvas.set_width((width * device_pixel_ratio) as u32);
-                    canvas.set_height((height * device_pixel_ratio) as u32);
+                    if height < width {
+                        canvas.set_height((height * device_pixel_ratio) as u32);
+                    } else {
+                        canvas.set_height((width * device_pixel_ratio) as u32);
+                        
+                    }
 
                     // Scale the context to account for the device pixel ratio
                     context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
@@ -70,16 +79,38 @@ pub fn PieChart(props: &PieChartProps) -> Html {
         }, ());
     }
 
+    let legend_html = if props.config.show_legend {
+        
+        html! {
+            <div style="display: flex; flex-direction: row; gap: 5px; margin-bottom: 1em;">
+                { for props.data.iter().map(|data_point| {
+                    html! {
+                        <div style="display: flex; flex-direction: row; align-items: center; gap: 2px;">
+                                <span style="font-size: 10px;">{ &data_point.name }</span>
+                            <div style={format!("background-color: {}; width: 10px; height: 10px; display: inline-block;", &data_point.color)}></div>
+                        </div>
+                    }
+                })}
+            </div>
+        }
+    } else {
+        html! {}
+    };
+
     html! {
-        <canvas ref={canvas_ref} style="width: 100%; height: 100%;"></canvas>
+        <div>
+            // legend
+            { legend_html }
+            <canvas ref={canvas_ref} style="width: 100%; height: 100%;"></canvas>
+        </div>
     }
 }
 
 pub fn draw_pie_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &PieChartProps) {
     let data = props.data.iter().map(|data_point| data_point.value).collect::<Vec<i32>>();
-    let labels = props.data.iter().map(|data_point| data_point.name.clone()).collect::<Vec<String>>();
+    // let labels = props.data.iter().map(|data_point| data_point.name.clone()).collect::<Vec<String>>();
     // randomize color selection(use a cool color palette)
-    let colors = props.data.iter().map(|_| format!("#{:06x}", rand::random::<u32>() % 0xffffff)).collect::<Vec<String>>();
+    let colors = props.data.iter().map(|data_point| data_point.color.clone()).collect::<Vec<String>>();
 
     // Calculate the total sum of the data
     let total: f64 = data.iter().sum::<i32>() as f64;
@@ -112,22 +143,22 @@ pub fn draw_pie_chart(context: &CanvasRenderingContext2d, width: f64, height: f6
     }
 
     // Draw labels
-    context.set_fill_style(&JsValue::from_str("black"));
-    context.set_text_align("center");
-    context.set_text_baseline("middle");
+    // context.set_fill_style(&JsValue::from_str("black"));
+    // context.set_text_align("center");
+    // context.set_text_baseline("middle");
 
-    start_angle = 0.0;
-    for (i, &value) in data.iter().enumerate() {
-        let slice_angle = value as f64 / total * std::f64::consts::PI * 2.0;
-        let label_angle = start_angle + slice_angle / 2.0;
+    // start_angle = 0.0;
+    // for (i, &value) in data.iter().enumerate() {
+    //     let slice_angle = value as f64 / total * std::f64::consts::PI * 2.0;
+    //     let label_angle = start_angle + slice_angle / 2.0;
 
-        let label_x = width / 2.0 + (width.min(height) / 2.0 - 30.0) * label_angle.cos();
-        let label_y = height / 2.0 + (height.min(width) / 2.0 - 30.0) * label_angle.sin();
+    //     let label_x = width / 2.0 + (width.min(height) / 2.0 - 30.0) * label_angle.cos();
+    //     let label_y = height / 2.0 + (height.min(width) / 2.0 - 30.0) * label_angle.sin();
 
-        context.fill_text(labels[i].as_str(), label_x, label_y).unwrap();
+    //     context.fill_text(labels[i].as_str(), label_x, label_y).unwrap();
 
-        start_angle += slice_angle;
-    }
+    //     start_angle += slice_angle;
+    // }
 }
 
 #[cfg(test)]
@@ -154,12 +185,15 @@ mod tests {
         let height = 600.0;
         let props = PieChartProps {
             data: vec![
-                DataPoint { name: "A".to_string(), value: 10 },
-                DataPoint { name: "B".to_string(), value: 20 },
-                DataPoint { name: "C".to_string(), value: 30 },
-                DataPoint { name: "D".to_string(), value: 40 },
+                DataPoint { name: "A".to_string(), value: 10, color: "".to_string() },
+                DataPoint { name: "B".to_string(), value: 20, color: "".to_string() },
+                DataPoint { name: "C".to_string(), value: 30, color: "".to_string() },
+                DataPoint { name: "D".to_string(), value: 40, color: "".to_string() },
             ],
-            config: None,
+            config: PieChartConfig {
+                text_align: "center".to_string(),
+                show_legend: true,
+            },
         };
 
         draw_pie_chart(&context, width, height, &props);
