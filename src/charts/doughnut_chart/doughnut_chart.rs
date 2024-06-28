@@ -3,15 +3,17 @@ use yew::prelude::*;
 use gloo::events::EventListener;
 use std::f64::consts::PI;
 
-#[derive(Clone, Debug, PartialEq, Eq, Properties)]
+#[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
 pub struct DoughnutChartConfigs {
-
+    #[prop_or(true)]
+    pub show_legend: bool,
 }
 
 #[derive(Clone, Properties, PartialEq, Debug, Eq)]
 pub struct DoughnutChartProps {
     pub data: Vec<(String, i32, String)>,
-    pub config: Option<DoughnutChartConfigs>,
+    #[prop_or_default]
+    pub config: DoughnutChartConfigs,
 }
 #[function_component]
 pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
@@ -43,7 +45,12 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
 
                     // Set the canvas dimensions to match its parent's dimensions
                     canvas.set_width((width * device_pixel_ratio) as u32);
-                    canvas.set_height((height * device_pixel_ratio) as u32);
+                    if height < width {
+                        canvas.set_height((height * device_pixel_ratio) as u32);
+                    } else {
+                        canvas.set_height((width * device_pixel_ratio) as u32);
+                        
+                    }
 
                     // Scale the context to account for the device pixel ratio
                     context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
@@ -62,15 +69,37 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
         }, ());
     }
 
+    let legend_html = if props.config.show_legend {
+        
+        html! {
+            <div style="display: flex; flex-direction: row; gap: 5px; margin-bottom: 1em;">
+                { for props.data.iter().map(|(label, _value, color)| {
+                    html! {
+                        <div style="display: flex; flex-direction: row; align-items: center; gap: 2px;">
+                                <span style="font-size: 10px;">{ &label }</span>
+                            <div style={format!("background-color: {}; width: 10px; height: 10px; display: inline-block;", &color)}></div>
+                        </div>
+                    }
+                })}
+            </div>
+        }
+    } else {
+        html! {}
+    };
+
     html! {
-        <canvas ref={canvas_ref} style="width: 100%; height: 100%;"></canvas>
+        <div>
+            // legend
+            { legend_html }
+            <canvas ref={canvas_ref} style="width: 100%; height: 100%;"></canvas>
+        </div>
     }
 }
 
 fn draw_doughnut_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &DoughnutChartProps) {
     let center_x = width / 2.0;
     let center_y = height / 2.0;
-    let radius = (width.min(height) / 3.0).min(150.0);
+    let radius = (width.min(height) / 2.0).min(150.0);
     let inner_radius = radius * 0.5;
 
     // Define the segments of the doughnut chart
@@ -115,22 +144,22 @@ fn draw_doughnut_chart(context: &CanvasRenderingContext2d, width: f64, height: f
     }
 
     // Add labels
-    start_angle = -PI / 2.0;
-    context.set_fill_style(&JsValue::from_str("black"));
-    context.set_text_align("center");
-    context.set_text_baseline("middle");
+    // start_angle = -PI / 2.0;
+    // context.set_fill_style(&JsValue::from_str("black"));
+    // context.set_text_align("center");
+    // context.set_text_baseline("middle");
 
-    for (label, value, _) in segments {
-        let sweep_angle = (*value as f64 / total) * 2.0 * PI;
-        let angle: f64 = start_angle + sweep_angle / 2.0;
+    // for (label, value, _) in segments {
+    //     let sweep_angle = (*value as f64 / total) * 2.0 * PI;
+    //     let angle: f64 = start_angle + sweep_angle / 2.0;
 
-        let x = center_x + (radius + 20.0) * angle.cos();
-        let y = center_y + (radius + 20.0) * angle.sin();
+    //     let x = center_x + (radius + 20.0) * angle.cos();
+    //     let y = center_y + (radius + 20.0) * angle.sin();
 
-        let _ignored_result = context.fill_text(label.as_str(), x, y);
+    //     let _ignored_result = context.fill_text(label.as_str(), x, y);
 
-        start_angle += sweep_angle;
-    }
+    //     start_angle += sweep_angle;
+    // }
 }
 
 #[cfg(test)]
@@ -160,7 +189,9 @@ mod tests {
                 ("B".to_string(), 20, "#00ff00".to_string()),
                 ("C".to_string(), 30, "#0000ff".to_string()),
             ],
-            config: None,
+            config: DoughnutChartConfigs {
+                show_legend: true,
+            }
         };
 
         draw_doughnut_chart(&context, 500.0, 500.0, &props);

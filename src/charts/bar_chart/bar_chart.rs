@@ -4,30 +4,12 @@ use gloo::events::EventListener;
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
 pub struct BarChartConfig {
-    #[prop_or(Some("#1ECBE1".to_string()))]
-    pub bar_color: Option<String>,
-    pub grid_color: Option<String>,
-    pub axis_color: Option<String>,
-    pub axis_label_color: Option<String>,
-    pub axis_label_font: Option<String>,
-    pub axis_label_font_size: Option<i32>,
-    pub axis_label_font_weight: Option<String>,
-    pub axis_label_padding: Option<i32>,
-    pub axis_label_rotation: Option<i32>,
-    pub axis_label_x_offset: Option<i32>,
-    pub axis_label_y_offset: Option<i32>,
-    pub axis_tick_length: Option<i32>,
-    pub axis_tick_width: Option<i32>,
-    pub axis_width: Option<i32>,
-    pub bar_spacing: Option<i32>,
-    pub grid_line_width: Option<i32>,
-    pub grid_num_lines: Option<usize>,
-    pub margin_bottom: Option<i32>,
-    pub margin_left: Option<i32>,
-    pub margin_right: Option<i32>,
-    pub margin_top: Option<i32>,
-    pub x_axis_label: Option<String>,
-    pub y_axis_label: Option<String>,
+    #[prop_or_default]
+    pub bar_color: String,
+    #[prop_or_default]
+    pub grid_color: String,
+    #[prop_or_default]
+    pub axis_color: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties)]
@@ -40,7 +22,7 @@ pub struct DataPoint {
 pub struct BarChartProps {
     pub data: Vec<DataPoint>,
     #[prop_or(Default::default())]
-    pub config: Option<BarChartConfig>,
+    pub config: BarChartConfig,
 }
 
 
@@ -94,7 +76,10 @@ pub fn BarChart(props: &BarChartProps) -> Html {
     }
 
     html! {
-        <canvas ref={canvas_ref} style="width: 100%; height: 100%;"></canvas>
+        // <div style="width: 100%; height: 100%;">
+            
+        // </div>
+        <canvas ref={canvas_ref} style="width: 90%; height: 90%;"></canvas>
     }
 }
 
@@ -103,7 +88,7 @@ fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, p
     let num_bars = (data.len() + 2) as f64; // Add 2 to account for spacing on the farthest right
     let total_spacing = width * 0.1; // Reserve 10% of the width for spacing between bars
     let total_bar_width = width - total_spacing;
-    let bar_width = total_bar_width / num_bars;
+    let bar_width = total_bar_width / (num_bars * 3.0); // Shrink thrice the size of the bar width
     let bar_spacing = total_spacing / (num_bars - 1.0);
     let axis_padding = 50.0;
 
@@ -136,8 +121,8 @@ fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, p
     }
 
     // Draw the bars
-    let bar_color = props.config.as_ref().and_then(|config| config.bar_color.as_deref()).unwrap_or("#1ECBE1");
-    context.set_fill_style(&JsValue::from_str(bar_color));
+    let bar_color = props.config.bar_color.clone();
+    context.set_fill_style(&JsValue::from_str(bar_color.as_str()));
     for (i, &value) in data.iter().enumerate() {
         let x = axis_padding + i as f64 * (bar_width + bar_spacing);
         let y = height - axis_padding - value as f64 * ((height - axis_padding * 2.0) / max_value);
@@ -187,7 +172,7 @@ mod tests {
 
         let props = BarChartProps {
             data,
-            config: None,
+            config: BarChartConfig::default(),
         };
 
         draw_bar_chart(&context, width, height, &props);

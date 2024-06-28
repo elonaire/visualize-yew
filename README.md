@@ -3,23 +3,30 @@
 
 This is a simple crate to help you visualize your data in the browser using Yew. It is a wrapper around the yew crate that provides a simple API to create charts.
 
-This crate is still in development and is not yet ready for production use. The API is subject to change.
+**Note**: This crate is **NOW** available for use, all charts are customizable to your liking.
+
+**New/Upcoming Features:**
+- [x] Customizable colors for all charts
+- [x] Customizable labels for all charts
+- [x] Customizable legend for all charts
+- [x] Customizable stroke width for line chart
+- [ ] Customizable tooltip for all charts
 
 This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/introduction) framework and uses HTML5 canvas to render the charts.
 
 ## Features
 - [x] PieChart
 
-    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/4401284a-6498-4e19-d2c8-865dc95e9f00/public" width="200">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/2fd337b3-4c77-45b8-8195-0ac85496e700/public" width="200">
 - [x] LineChart
 
-    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/d33bc074-207d-417d-18b6-af93594d0700/public" width="200">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/509533f0-8ab1-4333-2b22-408c2b8d1e00/public" width="400">
 - [x] BarChart
 
-    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/194517a9-7a9b-4248-3acf-436dcb3fc700/public" width="200">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/ff0d07c0-681e-43a8-349c-571c1d389b00/public" width="400">
 - [x] DoughnutChart
 
-    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/6c66a389-9f66-4cc3-a8d3-fbfe9e9e9400/public" width="200">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/f30b8b58-668c-45ce-3923-5e9840abe400/public" width="200">
 
 ## Usage
 Add the following to your `Cargo.toml`:
@@ -34,33 +41,36 @@ use visualize_yew::pie_chart::{DataPoint as PieChartData, PieChart};
 
 #[function_component]
 fn Home() -> Html {
-    let pie_chart_data: Vec<PieChartData> = vec![
-        PieChartData {
+    let mut pie_chart_config = PieChartConfig::default();
+    pie_chart_config.show_legend = true;
+
+    let pie_data = vec![
+        PieDataPoint {
             name: "A".to_string(),
             value: 10,
+            color: "#F47489".to_string(),
         },
-        PieChartData {
+        PieDataPoint {
             name: "B".to_string(),
             value: 20,
+            color: "#43bc7e".to_string(),
         },
-        PieChartData {
+        PieDataPoint {
             name: "C".to_string(),
             value: 30,
+            color: "#1ECBE1".to_string(),
         },
-        PieChartData {
+        PieDataPoint {
             name: "D".to_string(),
             value: 40,
-        },
-        PieChartData {
-            name: "E".to_string(),
-            value: 50,
+            color: "#8900ef".to_string(),
         },
     ];
 
     html! {
         // Chart will take the full width of the parent container
         <div>
-            <PieChart data={pie_chart_data} />
+            <PieChart data={pie_chart_data} config={pie_chart_config} />
         </div>
     }
 }
