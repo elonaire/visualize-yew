@@ -11,7 +11,12 @@ This is a simple crate to help you visualize your data in the browser using Yew.
 - [x] Customizable labels for all charts
 - [x] Customizable legend for all charts
 - [x] Customizable stroke width for line chart
+- [x] Customizable grid for line charts
 - [ ] Customizable tooltip for all charts
+- [ ] Toggleable legend for all charts
+- [ ] Polar Area Chart
+- [ ] Radar Chart
+- [ ] Scatter Chart
 
 This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/introduction) framework and uses HTML5 canvas to render the charts.
 
