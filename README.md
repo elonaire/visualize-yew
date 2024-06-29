@@ -12,6 +12,7 @@ This is a simple crate to help you visualize your data in the browser using Yew.
 - [x] Customizable legend for all charts
 - [x] Customizable stroke width for line chart
 - [x] Customizable grid for line charts
+- [x] Improved responsiveness for all charts
 - [ ] Customizable tooltip for all charts
 - [ ] Toggleable legend for all charts
 - [ ] Polar Area Chart
