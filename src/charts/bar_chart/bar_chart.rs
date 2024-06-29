@@ -52,7 +52,8 @@ pub fn BarChart(props: &BarChartProps) -> Html {
                     let device_pixel_ratio = window().unwrap().device_pixel_ratio();
                     let parent = canvas.parent_element().unwrap();
                     let width = parent.client_width() as f64;
-                    let height = parent.client_height() as f64;
+                    // let height = parent.client_height() as f64;
+                    let height = width * 0.6;
 
                     // Set the canvas dimensions to match its parent's dimensions
                     canvas.set_width((width * device_pixel_ratio) as u32);
@@ -172,7 +173,11 @@ mod tests {
 
         let props = BarChartProps {
             data,
-            config: BarChartConfig::default(),
+            config: BarChartConfig {
+                bar_color: "blue".to_string(),
+                grid_color: "gray".to_string(),
+                axis_color: "black".to_string(),
+            }
         };
 
         draw_bar_chart(&context, width, height, &props);
