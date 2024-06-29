@@ -81,8 +81,10 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
                         let device_pixel_ratio = window().unwrap().device_pixel_ratio();
                         let parent = canvas.parent_element().unwrap();
                         let width = parent.client_width() as f64;
-                        let height = parent.client_height() as f64;
+                        // let height = parent.client_height() as f64;
+                        let height = width * 0.6;
 
+                        // Set the canvas dimensions to match its parent's dimensions
                         // Set the canvas dimensions to match its parent's dimensions
                         canvas.set_width((width * device_pixel_ratio) as u32);
                         canvas.set_height((height * device_pixel_ratio) as u32);
@@ -111,7 +113,7 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
     // Render the legend if enabled
     let legend_html = if props.config.show_legend {
         html! {
-            <div style="display: flex; flex-direction: row; gap: 5px; margin-bottom: 1em;">
+            <div style="display: flex; flex-direction: row; gap: 5px;  flex-wrap: wrap;">
                 { for props.data.iter().map(|(series, _)| {
                     html! {
                         <div style="display: flex; flex-direction: row; align-items: center; gap: 2px;">
@@ -126,12 +128,11 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
         html! {}
     };
 
-
     html! {
-        <div style="width: 100%; height: 100%;">
+        <div>
             // legend
             { legend_html }
-            <canvas ref={canvas_ref} style="width: 90%; height: 90%;"></canvas>
+            <canvas ref={canvas_ref} style="width: 100%; height: 100%; box-sizing: border-box;"></canvas>
         </div>
     }
 }
@@ -177,7 +178,6 @@ fn draw_multiline_chart(
         context.line_to(axis_padding, height - axis_padding);
         context.stroke();
     }
-
 
     // Draw the y-axis grid lines and labels
     context.set_stroke_style(&JsValue::from_str("#cccccc"));
@@ -303,7 +303,7 @@ mod tests {
         let context = mock_context();
         let width = 800.0;
         let height = 600.0;
-        
+
         let props = LineCurveChartProps {
             data: vec![
                 (

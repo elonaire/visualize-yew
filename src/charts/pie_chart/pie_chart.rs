@@ -51,16 +51,12 @@ pub fn PieChart(props: &PieChartProps) -> Html {
                     let device_pixel_ratio = window().unwrap().device_pixel_ratio();
                     let parent = canvas.parent_element().unwrap();
                     let width = parent.client_width() as f64;
-                    let height = parent.client_height() as f64;
+                    // let height = parent.client_height() as f64;
+                    let height = width * 0.8;
 
                     // Set the canvas dimensions to match its parent's dimensions
                     canvas.set_width((width * device_pixel_ratio) as u32);
-                    if height < width {
-                        canvas.set_height((height * device_pixel_ratio) as u32);
-                    } else {
-                        canvas.set_height((width * device_pixel_ratio) as u32);
-                        
-                    }
+                    canvas.set_height((height * device_pixel_ratio) as u32);
 
                     // Scale the context to account for the device pixel ratio
                     context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
@@ -82,7 +78,7 @@ pub fn PieChart(props: &PieChartProps) -> Html {
     let legend_html = if props.config.show_legend {
         
         html! {
-            <div style="display: flex; flex-direction: row; gap: 5px; margin-bottom: 1em;">
+            <div style="display: flex; flex-direction: row; gap: 5px; flex-wrap: wrap;">
                 { for props.data.iter().map(|data_point| {
                     html! {
                         <div style="display: flex; flex-direction: row; align-items: center; gap: 2px;">
@@ -190,10 +186,7 @@ mod tests {
                 DataPoint { name: "C".to_string(), value: 30, color: "".to_string() },
                 DataPoint { name: "D".to_string(), value: 40, color: "".to_string() },
             ],
-            config: PieChartConfig {
-                text_align: "center".to_string(),
-                show_legend: true,
-            },
+            config: PieChartConfig::default(),
         };
 
         draw_pie_chart(&context, width, height, &props);
