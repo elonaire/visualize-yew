@@ -1,0 +1,22 @@
+# Possible funding platforms include:
+# - GitHub Sponsors: github
+# - Patreon: patreon
+# - Open Collective: open_collective
+# - Ko-fi: ko_fi
+# - Tidelift: tidelift
+# - Community Bridge: community_bridge
+# - Liberapay: liberapay
+# - IssueHunt: issuehunt
+# - Otechie: otechie
+# - Custom URL: custom
+
+github: elonaire
+# patreon: your_patreon_username
+# open_collective: your_open_collective_slug
+# ko_fi: your_ko_fi_username
+# tidelift: your_tidelift_project_slug
+# community_bridge: your_community_bridge_project_slug
+# liberapay: your_liberapay_username
+# issuehunt: your_issuehunt_username
+# otechie: your_otechie_username
+# custom: ['https://your_custom_url.com']
