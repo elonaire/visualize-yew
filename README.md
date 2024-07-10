@@ -7,12 +7,7 @@ This is a simple crate to help you visualize your data in the browser using Yew.
 **Note**: This crate is **NOW** available for use, all charts are customizable to your liking.
 
 **New/Upcoming Features:**
-- [x] Customizable colors for all charts
-- [x] Customizable labels for all charts
-- [x] Customizable legend for all charts
-- [x] Customizable stroke width for line chart
-- [x] Customizable grid for line charts
-- [x] Improved responsiveness for all charts
+- [x] Area Chart
 - [ ] Customizable tooltip for all charts
 - [ ] Toggleable legend for all charts
 - [ ] Polar Area Chart
@@ -28,6 +23,7 @@ This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/int
 - [x] LineChart
 
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/509533f0-8ab1-4333-2b22-408c2b8d1e00/public" width="400">
+    <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/5889af55-9f55-4687-5d66-20a291597a00/public" width="400">
 - [x] BarChart
 
     <img src="https://imagedelivery.net/fa3SWf5GIAHiTnHQyqU8IQ/ff0d07c0-681e-43a8-349c-571c1d389b00/public" width="400">
@@ -39,7 +35,7 @@ This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/int
 Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
-visualize-yew = { version = "0.20.0-alpha.1", features = ["PieChart"] }
+visualize-yew = { version = "0.20.x", features = ["PieChart"] }
 ```
 
 ## Example
