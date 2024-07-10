@@ -28,6 +28,12 @@ pub struct LineCurveChartConfig {
     pub show_y_axis_labels: bool,
     #[prop_or_default]
     pub stroke_width: i32,
+    #[prop_or(false)]
+    pub show_area_chart: bool,
+    #[prop_or("".to_string())]
+    pub x_axis_title: String,
+    #[prop_or("".to_string())]
+    pub y_axis_title: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties)]
@@ -150,7 +156,6 @@ fn draw_multiline_chart(
         .iter()
         .flat_map(|(_, data)| data.iter().map(|datapoint| datapoint.y))
         .max()
-        // .cloned()
         .unwrap_or(0) as f64
         * 1.2;
     let num_points = datasets.first().unwrap().1.len() as f64;
@@ -208,7 +213,7 @@ fn draw_multiline_chart(
         }
     }
 
-    // Draw each dataset as a separate line
+    // Draw each dataset as a separate line and fill the area below it
     for (series, data) in datasets {
         context.set_stroke_style(&JsValue::from_str(series.color.as_str()));
         context.set_line_width(props.config.stroke_width as f64);
@@ -240,6 +245,20 @@ fn draw_multiline_chart(
         }
         context.stroke();
 
+        // Fill the area below the line
+        if props.config.show_area_chart {
+            context.line_to(
+                axis_padding + (data.len() as f64 - 1.0) * point_spacing,
+                height - axis_padding,
+            );
+            context.line_to(axis_padding, height - axis_padding);
+            context.close_path();
+
+            let fill_color = format!("{}33", &series.color); // Lighter shade (transparent)
+            context.set_fill_style(&JsValue::from_str(&fill_color));
+            context.fill();
+        }
+
         // Add colored dots at inflection points
         if props.config.show_inflection_points {
             context.set_fill_style(&JsValue::from_str(series.color.as_str()));
@@ -269,6 +288,42 @@ fn draw_multiline_chart(
             let y = height - axis_padding / 2.0;
             context.fill_text(x_label.as_str(), x, y).unwrap();
         }
+    }
+
+    // Draw x-axis title
+    if !props.config.x_axis_title.is_empty() {
+        context.set_text_align("center");
+        context.set_font("bold 12px Arial");
+        context.fill_text(
+            &props.config.x_axis_title,
+            width / 2.0,
+            height - (axis_padding / 4.0),
+        )
+        .unwrap();
+    }
+
+    // Draw y-axis title
+    if !props.config.y_axis_title.is_empty() {
+        context.set_text_align("center");
+        context.set_text_baseline("middle");
+        context.set_font("bold 12px Arial");
+
+        // Save current state before rotating context
+        context.save();
+
+        // Rotate 90 degrees counter-clockwise
+        context.rotate(-std::f64::consts::PI / 2.0).unwrap();
+
+        // Translate context to draw on rotated canvas
+        context.fill_text(
+            &props.config.y_axis_title,
+            -(height / 2.0),
+            axis_padding / 4.0,
+        )
+        .unwrap();
+
+        // Restore context state to avoid affecting other drawings
+        context.restore();
     }
 }
 
@@ -351,6 +406,9 @@ mod tests {
                 show_x_axis_labels: true,
                 show_y_axis_labels: true,
                 stroke_width: 2,
+                show_area_chart: true,
+                x_axis_title: "Day of the Week".to_string(),
+                y_axis_title: "Amount($)".to_string()
             },
         };
 
