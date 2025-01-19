@@ -32,7 +32,7 @@ pub fn PieChart(props: &PieChartProps) -> Html {
     {
         let canvas_ref = canvas_ref.clone();
         let props_clone = props.clone();
-        use_effect_with_deps(move |_| {
+        use_effect_with((), move |_| {
             let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
 
             let context = canvas
@@ -72,7 +72,7 @@ pub fn PieChart(props: &PieChartProps) -> Html {
             });
 
             move || drop(listener) // Clean up the event listener on component unmount
-        }, ());
+        });
     }
 
     let legend_html = if props.config.show_legend {

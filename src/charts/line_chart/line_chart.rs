@@ -63,7 +63,7 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
     {
         let canvas_ref = canvas_ref.clone();
         let props_clone = props.clone();
-        use_effect_with_deps(
+        use_effect_with((), 
             move |_| {
                 let canvas = canvas_ref
                     .cast::<HtmlCanvasElement>()
@@ -111,8 +111,7 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
                 });
 
                 move || drop(listener) // Clean up the event listener on component unmount
-            },
-            (),
+            }
         );
     }
 
