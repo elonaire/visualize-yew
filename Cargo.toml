@@ -1,6 +1,6 @@
 [package]
 name = "visualize-yew"
-version = "0.21.0"
+version = "0.21.1"
 edition = "2021"
 description = "A simple data visualization library for Yew"
 license = "MIT OR Apache-2.0"
@@ -17,8 +17,13 @@ DoughnutChart = []
 
 
 [dependencies]
-yew = { version="0.21", features=["csr"] }
-web-sys = { version = "0.3.69", features = ["HtmlSelectElement", "HtmlDocument", "HtmlCanvasElement", "CanvasRenderingContext2d"]}
+yew = { version = "0.21", features = ["csr"] }
+web-sys = { version = "0.3.69", features = [
+    "HtmlSelectElement",
+    "HtmlDocument",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
+] }
 gloo = "0.11.0"
 rand = "0.8.5"
 

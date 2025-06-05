@@ -1,6 +1,9 @@
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, window, wasm_bindgen::{JsValue, JsCast}};
-use yew::prelude::*;
 use gloo::events::EventListener;
+use web_sys::{
+    wasm_bindgen::{JsCast, JsValue},
+    window, CanvasRenderingContext2d, HtmlCanvasElement,
+};
+use yew::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
 pub struct PieChartConfig {
@@ -17,6 +20,16 @@ pub struct DataPoint {
     pub color: String,
 }
 
+impl DataPoint {
+    pub fn new(name: &str, value: i32, color: &str) -> Self {
+        Self {
+            name: name.into(),
+            value,
+            color: color.into(),
+        }
+    }
+}
+
 #[derive(Clone, Properties, PartialEq, Debug, Eq)]
 pub struct PieChartProps {
     pub data: Vec<DataPoint>,
@@ -24,7 +37,19 @@ pub struct PieChartProps {
     pub config: PieChartConfig,
 }
 
-// #[cfg(feature = "PieChart")]
+/// This is how you can create a PieChart component configuration:
+///```
+/// let props = PieChartProps {
+///     data: vec![
+///         DataPoint::new("A", 10, ""),
+///         DataPoint::new("B", 20, ""),
+///         DataPoint::new("C", 30, ""),
+///         DataPoint::new("D", 40, ""),
+///     ],
+///     config: PieChartConfig::default(),
+/// };
+/// ```
+/// #[cfg(feature = "PieChart")]
 #[function_component]
 pub fn PieChart(props: &PieChartProps) -> Html {
     let canvas_ref = use_node_ref();
@@ -33,7 +58,9 @@ pub fn PieChart(props: &PieChartProps) -> Html {
         let canvas_ref = canvas_ref.clone();
         let props_clone = props.clone();
         use_effect_with((), move |_| {
-            let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
+            let canvas = canvas_ref
+                .cast::<HtmlCanvasElement>()
+                .expect("Failed to get canvas element");
 
             let context = canvas
                 .get_context("2d")
@@ -46,8 +73,10 @@ pub fn PieChart(props: &PieChartProps) -> Html {
             let resize_callback = {
                 let canvas_ref = canvas_ref.clone();
                 move || {
-                    let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
-                    
+                    let canvas = canvas_ref
+                        .cast::<HtmlCanvasElement>()
+                        .expect("Failed to get canvas element");
+
                     let device_pixel_ratio = window().unwrap().device_pixel_ratio();
                     let parent = canvas.parent_element().unwrap();
                     let width = parent.client_width() as f64;
@@ -59,7 +88,9 @@ pub fn PieChart(props: &PieChartProps) -> Html {
                     canvas.set_height((height * device_pixel_ratio) as u32);
 
                     // Scale the context to account for the device pixel ratio
-                    context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
+                    context
+                        .scale(device_pixel_ratio, device_pixel_ratio)
+                        .unwrap();
 
                     draw_pie_chart(&context, width, height, &props_clone_resize);
                 }
@@ -76,7 +107,6 @@ pub fn PieChart(props: &PieChartProps) -> Html {
     }
 
     let legend_html = if props.config.show_legend {
-        
         html! {
             <div style="display: flex; flex-direction: row; gap: 5px; flex-wrap: wrap;">
                 { for props.data.iter().map(|data_point| {
@@ -102,11 +132,24 @@ pub fn PieChart(props: &PieChartProps) -> Html {
     }
 }
 
-pub fn draw_pie_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &PieChartProps) {
-    let data = props.data.iter().map(|data_point| data_point.value).collect::<Vec<i32>>();
+pub fn draw_pie_chart(
+    context: &CanvasRenderingContext2d,
+    width: f64,
+    height: f64,
+    props: &PieChartProps,
+) {
+    let data = props
+        .data
+        .iter()
+        .map(|data_point| data_point.value)
+        .collect::<Vec<i32>>();
     // let labels = props.data.iter().map(|data_point| data_point.name.clone()).collect::<Vec<String>>();
     // randomize color selection(use a cool color palette)
-    let colors = props.data.iter().map(|data_point| data_point.color.clone()).collect::<Vec<String>>();
+    let colors = props
+        .data
+        .iter()
+        .map(|data_point| data_point.color.clone())
+        .collect::<Vec<String>>();
 
     // Calculate the total sum of the data
     let total: f64 = data.iter().sum::<i32>() as f64;
@@ -121,13 +164,15 @@ pub fn draw_pie_chart(context: &CanvasRenderingContext2d, width: f64, height: f6
         // Draw the slice
         context.begin_path();
         context.move_to(width / 2.0, height / 2.0);
-        context.arc(
-            width / 2.0,
-            height / 2.0,
-            (width.min(height) / 2.0) - 5.0,
-            start_angle,
-            start_angle + slice_angle,
-        ).unwrap();
+        context
+            .arc(
+                width / 2.0,
+                height / 2.0,
+                (width.min(height) / 2.0) - 5.0,
+                start_angle,
+                start_angle + slice_angle,
+            )
+            .unwrap();
         context.close_path();
 
         // Fill the slice with color
@@ -163,15 +208,24 @@ mod tests {
     use wasm_bindgen_test::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
-    
+
     // Function to create a mock CanvasRenderingContext2d
     fn mock_context() -> CanvasRenderingContext2d {
         // Create a canvas element
         let document = web_sys::window().unwrap().document().unwrap();
-        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
-        
+        let canvas = document
+            .create_element("canvas")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .unwrap();
+
         // Get the 2D context from the canvas
-        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+        canvas
+            .get_context("2d")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<CanvasRenderingContext2d>()
+            .unwrap()
     }
 
     #[wasm_bindgen_test]
@@ -181,10 +235,10 @@ mod tests {
         let height = 600.0;
         let props = PieChartProps {
             data: vec![
-                DataPoint { name: "A".to_string(), value: 10, color: "".to_string() },
-                DataPoint { name: "B".to_string(), value: 20, color: "".to_string() },
-                DataPoint { name: "C".to_string(), value: 30, color: "".to_string() },
-                DataPoint { name: "D".to_string(), value: 40, color: "".to_string() },
+                DataPoint::new("A", 10, ""),
+                DataPoint::new("B", 20, ""),
+                DataPoint::new("C", 30, ""),
+                DataPoint::new("D", 40, ""),
             ],
             config: PieChartConfig::default(),
         };

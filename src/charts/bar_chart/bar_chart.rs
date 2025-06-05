@@ -1,6 +1,9 @@
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, window, wasm_bindgen::{JsValue, JsCast}};
-use yew::prelude::*;
 use gloo::events::EventListener;
+use web_sys::{
+    wasm_bindgen::{JsCast, JsValue},
+    window, CanvasRenderingContext2d, HtmlCanvasElement,
+};
+use yew::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
 pub struct BarChartConfig {
@@ -12,10 +15,29 @@ pub struct BarChartConfig {
     pub axis_color: String,
 }
 
+impl BarChartConfig {
+    pub fn new(bar_color: &str, grid_color: &str, axis_color: &str) -> Self {
+        Self {
+            bar_color: bar_color.into(),
+            grid_color: grid_color.into(),
+            axis_color: axis_color.into(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Properties)]
 pub struct DataPoint {
     pub name: String,
     pub value: i32,
+}
+
+impl DataPoint {
+    pub fn new(name: &str, value: i32) -> Self {
+        Self {
+            name: name.into(),
+            value,
+        }
+    }
 }
 
 #[derive(Clone, Properties, PartialEq, Debug, Eq)]
@@ -25,7 +47,19 @@ pub struct BarChartProps {
     pub config: BarChartConfig,
 }
 
-
+/// This is an example of a bar chart component configuration:
+///```
+/// let data = vec![
+///     DataPoint::new("A", 10),
+///     DataPoint::new("B", 20),
+///     DataPoint::new("C", 15),
+/// ];
+///
+/// let props = BarChartProps {
+///     data,
+///     config: BarChartConfig::new("blue", "gray", "black"),
+/// };
+/// ```
 #[function_component]
 pub fn BarChart(props: &BarChartProps) -> Html {
     let canvas_ref = use_node_ref();
@@ -34,7 +68,9 @@ pub fn BarChart(props: &BarChartProps) -> Html {
         let canvas_ref = canvas_ref.clone();
         let props_clone = props.clone();
         use_effect_with((), move |_| {
-            let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
+            let canvas = canvas_ref
+                .cast::<HtmlCanvasElement>()
+                .expect("Failed to get canvas element");
 
             let context = canvas
                 .get_context("2d")
@@ -47,8 +83,10 @@ pub fn BarChart(props: &BarChartProps) -> Html {
             let resize_callback = {
                 let canvas_ref = canvas_ref.clone();
                 move || {
-                    let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
-                    
+                    let canvas = canvas_ref
+                        .cast::<HtmlCanvasElement>()
+                        .expect("Failed to get canvas element");
+
                     let device_pixel_ratio = window().unwrap().device_pixel_ratio();
                     let parent = canvas.parent_element().unwrap();
                     let width = parent.client_width() as f64;
@@ -60,7 +98,9 @@ pub fn BarChart(props: &BarChartProps) -> Html {
                     canvas.set_height((height * device_pixel_ratio) as u32);
 
                     // Scale the context to account for the device pixel ratio
-                    context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
+                    context
+                        .scale(device_pixel_ratio, device_pixel_ratio)
+                        .unwrap();
 
                     draw_bar_chart(&context, width, height, &props_clone_resize);
                 }
@@ -78,14 +118,23 @@ pub fn BarChart(props: &BarChartProps) -> Html {
 
     html! {
         // <div style="width: 100%; height: 100%;">
-            
+
         // </div>
         <canvas ref={canvas_ref} style="width: 90%; height: 90%;"></canvas>
     }
 }
 
-fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &BarChartProps) {
-    let data = props.data.iter().map(|point| point.value).collect::<Vec<i32>>();
+fn draw_bar_chart(
+    context: &CanvasRenderingContext2d,
+    width: f64,
+    height: f64,
+    props: &BarChartProps,
+) {
+    let data = props
+        .data
+        .iter()
+        .map(|point| point.value)
+        .collect::<Vec<i32>>();
     let num_bars = (data.len() + 2) as f64; // Add 2 to account for spacing on the farthest right
     let total_spacing = width * 0.1; // Reserve 10% of the width for spacing between bars
     let total_bar_width = width - total_spacing;
@@ -118,7 +167,9 @@ fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, p
 
         // Draw the y-axis labels
         let label = (i as f64 * step_value).round();
-        context.fill_text(&format!("{}", label), axis_padding - 10.0, y).unwrap();
+        context
+            .fill_text(&format!("{}", label), axis_padding - 10.0, y)
+            .unwrap();
     }
 
     // Draw the bars
@@ -134,7 +185,11 @@ fn draw_bar_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, p
     context.set_fill_style(&JsValue::from_str("black"));
     context.set_text_align("center");
     context.set_text_baseline("middle");
-    let labels = props.data.iter().map(|point| &point.name).collect::<Vec<&String>>();
+    let labels = props
+        .data
+        .iter()
+        .map(|point| &point.name)
+        .collect::<Vec<&String>>();
     for (i, &label) in labels.iter().enumerate() {
         let x = axis_padding + i as f64 * (bar_width + bar_spacing) + bar_width / 2.0;
         let y = height - axis_padding / 2.0;
@@ -148,15 +203,24 @@ mod tests {
     use wasm_bindgen_test::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
-    
+
     // Function to create a mock CanvasRenderingContext2d
     fn mock_context() -> CanvasRenderingContext2d {
         // Create a canvas element
         let document = web_sys::window().unwrap().document().unwrap();
-        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
-        
+        let canvas = document
+            .create_element("canvas")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .unwrap();
+
         // Get the 2D context from the canvas
-        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+        canvas
+            .get_context("2d")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<CanvasRenderingContext2d>()
+            .unwrap()
     }
 
     #[wasm_bindgen_test]
@@ -166,18 +230,14 @@ mod tests {
         let height = 400.0;
 
         let data = vec![
-            DataPoint { name: "A".to_string(), value: 10 },
-            DataPoint { name: "B".to_string(), value: 20 },
-            DataPoint { name: "C".to_string(), value: 15 },
+            DataPoint::new("A", 10),
+            DataPoint::new("B", 20),
+            DataPoint::new("C", 15),
         ];
 
         let props = BarChartProps {
             data,
-            config: BarChartConfig {
-                bar_color: "blue".to_string(),
-                grid_color: "gray".to_string(),
-                axis_color: "black".to_string(),
-            }
+            config: BarChartConfig::new("blue", "gray", "black"),
         };
 
         draw_bar_chart(&context, width, height, &props);

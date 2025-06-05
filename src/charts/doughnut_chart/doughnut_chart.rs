@@ -1,7 +1,10 @@
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, window, wasm_bindgen::{JsValue, JsCast}};
-use yew::prelude::*;
 use gloo::events::EventListener;
 use std::f64::consts::PI;
+use web_sys::{
+    wasm_bindgen::{JsCast, JsValue},
+    window, CanvasRenderingContext2d, HtmlCanvasElement,
+};
+use yew::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties, Default)]
 pub struct DoughnutChartConfigs {
@@ -9,12 +12,36 @@ pub struct DoughnutChartConfigs {
     pub show_legend: bool,
 }
 
+/// The tuple
+/// ```
+/// (String, i32, String)
+/// ```
+/// Represents a (label, value, color) data point for the doughnut chart.
 #[derive(Clone, Properties, PartialEq, Debug, Eq)]
 pub struct DoughnutChartProps {
     pub data: Vec<(String, i32, String)>,
     #[prop_or_default]
     pub config: DoughnutChartConfigs,
 }
+
+/// The tuple
+/// ```
+/// (String, i32, String)
+/// ```
+/// Represents a (label, value, color) data point for the doughnut chart.
+/// This is how you can create new data points:
+/// ```
+/// let props = DoughnutChartProps {
+///    data: vec![
+///        ("A".to_string(), 10, "#ff0000".to_string()),
+///        ("B".to_string(), 20, "#00ff00".to_string()),
+///        ("C".to_string(), 30, "#0000ff".to_string()),
+///    ],
+///    config: DoughnutChartConfigs {
+///        show_legend: true,
+///    }
+/// };
+/// ```
 #[function_component]
 pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
     let canvas_ref = use_node_ref();
@@ -23,7 +50,9 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
         let canvas_ref = canvas_ref.clone();
         let props_clone = props.clone();
         use_effect_with((), move |_| {
-            let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
+            let canvas = canvas_ref
+                .cast::<HtmlCanvasElement>()
+                .expect("Failed to get canvas element");
 
             let context = canvas
                 .get_context("2d")
@@ -36,8 +65,10 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
             let resize_callback = {
                 let canvas_ref = canvas_ref.clone();
                 move || {
-                    let canvas = canvas_ref.cast::<HtmlCanvasElement>().expect("Failed to get canvas element");
-                    
+                    let canvas = canvas_ref
+                        .cast::<HtmlCanvasElement>()
+                        .expect("Failed to get canvas element");
+
                     let device_pixel_ratio = window().unwrap().device_pixel_ratio();
                     let parent = canvas.parent_element().unwrap();
                     let width = parent.client_width() as f64;
@@ -49,7 +80,9 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
                     canvas.set_height((height * device_pixel_ratio) as u32);
 
                     // Scale the context to account for the device pixel ratio
-                    context.scale(device_pixel_ratio, device_pixel_ratio).unwrap();
+                    context
+                        .scale(device_pixel_ratio, device_pixel_ratio)
+                        .unwrap();
 
                     draw_doughnut_chart(&context, width, height, &props_clone_resize);
                 }
@@ -66,7 +99,6 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
     }
 
     let legend_html = if props.config.show_legend {
-        
         html! {
             <div style="display: flex; flex-direction: row; gap: 5px; flex-wrap: wrap;">
                 { for props.data.iter().map(|(label, _value, color)| {
@@ -92,7 +124,12 @@ pub fn DoughnutChart(props: &DoughnutChartProps) -> Html {
     }
 }
 
-fn draw_doughnut_chart(context: &CanvasRenderingContext2d, width: f64, height: f64, props: &DoughnutChartProps) {
+fn draw_doughnut_chart(
+    context: &CanvasRenderingContext2d,
+    width: f64,
+    height: f64,
+    props: &DoughnutChartProps,
+) {
     let center_x = width / 2.0;
     let center_y = height / 2.0;
     let radius = (width.min(height) / 2.0).min(150.0);
@@ -164,15 +201,24 @@ mod tests {
     use wasm_bindgen_test::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
-    
+
     // Function to create a mock CanvasRenderingContext2d
     fn mock_context() -> CanvasRenderingContext2d {
         // Create a canvas element
         let document = web_sys::window().unwrap().document().unwrap();
-        let canvas = document.create_element("canvas").unwrap().dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
-        
+        let canvas = document
+            .create_element("canvas")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .unwrap();
+
         // Get the 2D context from the canvas
-        canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
+        canvas
+            .get_context("2d")
+            .unwrap()
+            .unwrap()
+            .dyn_into::<CanvasRenderingContext2d>()
+            .unwrap()
     }
 
     #[wasm_bindgen_test]
@@ -185,9 +231,7 @@ mod tests {
                 ("B".to_string(), 20, "#00ff00".to_string()),
                 ("C".to_string(), 30, "#0000ff".to_string()),
             ],
-            config: DoughnutChartConfigs {
-                show_legend: true,
-            }
+            config: DoughnutChartConfigs { show_legend: true },
         };
 
         draw_doughnut_chart(&context, 500.0, 500.0, &props);
