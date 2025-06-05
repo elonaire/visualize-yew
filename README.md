@@ -48,26 +48,10 @@ fn Home() -> Html {
     pie_chart_config.show_legend = true;
 
     let pie_data = vec![
-        PieDataPoint {
-            name: "A".to_string(),
-            value: 10,
-            color: "#F47489".to_string(),
-        },
-        PieDataPoint {
-            name: "B".to_string(),
-            value: 20,
-            color: "#43bc7e".to_string(),
-        },
-        PieDataPoint {
-            name: "C".to_string(),
-            value: 30,
-            color: "#1ECBE1".to_string(),
-        },
-        PieDataPoint {
-            name: "D".to_string(),
-            value: 40,
-            color: "#8900ef".to_string(),
-        },
+        DataPoint::new("A", 10, ""),
+        DataPoint::new("B", 20, ""),
+        DataPoint::new("C", 30, ""),
+        DataPoint::new("D", 40, ""),
     ];
 
     html! {
