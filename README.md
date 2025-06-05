@@ -35,7 +35,7 @@ This crate is built using the [Yew](https://yew.rs/docs/0.20/getting-started/int
 Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
-visualize-yew = { version = "0.20.x", features = ["PieChart"] }
+visualize-yew = { version = "0.2x.x", features = ["PieChart"] }
 ```
 
 ## Example
@@ -48,10 +48,10 @@ fn Home() -> Html {
     pie_chart_config.show_legend = true;
 
     let pie_data = vec![
-        DataPoint::new("A", 10, ""),
-        DataPoint::new("B", 20, ""),
-        DataPoint::new("C", 30, ""),
-        DataPoint::new("D", 40, ""),
+        PieChartData::new("A", 10, ""),
+        PieChartData::new("B", 20, ""),
+        PieChartData::new("C", 30, ""),
+        PieChartData::new("D", 40, ""),
     ];
 
     html! {
