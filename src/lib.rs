@@ -1,6 +1,6 @@
 //! # Visualize Yew
 //!
-//! `Visualize Yew` is a modular charting library that supports multiple chart types behind feature flags.
+//! `Visualize Yew` is a simple crate to help you visualize your data in the browser using Yew. It is a wrapper around the yew crate that provides a simple API to create charts.
 //!
 //! ## Features
 //!
@@ -12,14 +12,14 @@
 //! Enable the desired chart(s) in your `Cargo.toml`:
 //!
 //! ```toml
-//! rusty_charts = { version = "0.1", features = ["BarChart", "PieChart"] }
+//! visualize-yew = { version = "0.2x.x", features = ["BarChart", "PieChart"] }
 //! ```
 //!
 //! ## Example
 //!
 //! ```rust
 //! #[cfg(feature = "BarChart")]
-//! use rusty_charts::bar_chart;
+//! use visualize-yew::bar_chart;
 //!
 //! fn main() {
 //!     #[cfg(feature = "BarChart")]
