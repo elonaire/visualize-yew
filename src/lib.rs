@@ -18,12 +18,26 @@
 //! ## Example
 //!
 //! ```rust
-//! #[cfg(feature = "BarChart")]
-//! use visualize-yew::bar_chart;
+//! use visualize_yew::pie_chart::{DataPoint as PieChartData, PieChart};
 //!
-//! fn main() {
-//!     #[cfg(feature = "BarChart")]
-//!     bar_chart();
+//! #[function_component]
+//! fn Home() -> Html {
+//!     let mut pie_chart_config = PieChartConfig::default();
+//!     pie_chart_config.show_legend = true;
+//!
+//!     let pie_data = vec![
+//!         PieChartData::new("A", 10, ""),
+//!         PieChartData::new("B", 20, ""),
+//!         PieChartData::new("C", 30, ""),
+//!         PieChartData::new("D", 40, ""),
+//!     ];
+//!
+//!     html! {
+//!         // Chart will take the full width of the parent container
+//!         <div>
+//!             <PieChart data={pie_chart_data} config={pie_chart_config} />
+//!         </div>
+//!     }
 //! }
 //! ```
 
