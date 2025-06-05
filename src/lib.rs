@@ -46,7 +46,7 @@ pub mod charts;
 #[cfg(feature = "BarChart")]
 /// Renders a bar chart.
 ///
-/// Enable this via the `BarChart` feature in Cargo.toml.
+/// This feature is enabled by default.
 pub use charts::bar_chart::bar_chart;
 
 #[cfg(feature = "PieChart")]
