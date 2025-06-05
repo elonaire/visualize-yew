@@ -42,10 +42,25 @@ pub struct DataPoint {
     pub y: i32, // dependent variable
 }
 
+impl DataPoint {
+    pub fn new(y: i32) -> Self {
+        Self { y }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Properties)]
 pub struct Series {
     pub name: String,
     pub color: String,
+}
+
+impl Series {
+    pub fn new(name: &str, color: &str) -> Self {
+        Self {
+            name: name.into(),
+            color: color.into(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties)]
@@ -56,6 +71,52 @@ pub struct LineCurveChartProps {
     pub config: LineCurveChartConfig,
 }
 
+/// This is an example of a line chart component configuration.
+///```
+/// let props = LineCurveChartProps {
+///     data: vec![
+///         (
+///             Series::new("Dataset 1", "#ff0000"),
+///             vec![
+///                 DataPoint::new(10),
+///                 DataPoint::new(20),
+///                 DataPoint::new(15),
+///                 DataPoint::new(40),
+///                 DataPoint::new(30),
+///             ],
+///         ),
+///         (
+///             Series::new("Dataset 2", "#00ff00"),
+///             vec![
+///                 DataPoint::new(50),
+///                 DataPoint::new(40),
+///                 DataPoint::new(30),
+///                 DataPoint::new(35),
+///                 DataPoint::new(20),
+///             ],
+///         ),
+///     ],
+///     x: vec!["0", "1", "2", "3", "4"]
+///         .into_iter()
+///         .map(|s| s.to_string())
+///         .collect(),
+///     config: LineCurveChartConfig {
+///         show_grid: true,
+///         show_legend: true,
+///         show_inflection_points: true,
+///         show_x_labels: true,
+///         show_y_labels: true,
+///         show_x_axis: true,
+///         show_y_axis: true,
+///         show_x_axis_labels: true,
+///         show_y_axis_labels: true,
+///         stroke_width: 2,
+///         show_area_chart: true,
+///         x_axis_title: "Day of the Week".to_string(),
+///         y_axis_title: "Amount($)".to_string(),
+///     },
+/// };
+/// ```
 #[function_component]
 pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
     let canvas_ref = use_node_ref();
@@ -63,56 +124,54 @@ pub fn LineCurveChart(props: &LineCurveChartProps) -> Html {
     {
         let canvas_ref = canvas_ref.clone();
         let props_clone = props.clone();
-        use_effect_with((), 
-            move |_| {
-                let canvas = canvas_ref
-                    .cast::<HtmlCanvasElement>()
-                    .expect("Failed to get canvas element");
+        use_effect_with((), move |_| {
+            let canvas = canvas_ref
+                .cast::<HtmlCanvasElement>()
+                .expect("Failed to get canvas element");
 
-                let context = canvas
-                    .get_context("2d")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_into::<CanvasRenderingContext2d>()
-                    .unwrap();
+            let context = canvas
+                .get_context("2d")
+                .unwrap()
+                .unwrap()
+                .dyn_into::<CanvasRenderingContext2d>()
+                .unwrap();
 
-                let props_clone_resize = props_clone.clone();
-                let resize_callback = {
-                    let canvas_ref = canvas_ref.clone();
-                    move || {
-                        let canvas = canvas_ref
-                            .cast::<HtmlCanvasElement>()
-                            .expect("Failed to get canvas element");
+            let props_clone_resize = props_clone.clone();
+            let resize_callback = {
+                let canvas_ref = canvas_ref.clone();
+                move || {
+                    let canvas = canvas_ref
+                        .cast::<HtmlCanvasElement>()
+                        .expect("Failed to get canvas element");
 
-                        let device_pixel_ratio = window().unwrap().device_pixel_ratio();
-                        let parent = canvas.parent_element().unwrap();
-                        let width = parent.client_width() as f64;
-                        // let height = parent.client_height() as f64;
-                        let height = width * 0.6;
+                    let device_pixel_ratio = window().unwrap().device_pixel_ratio();
+                    let parent = canvas.parent_element().unwrap();
+                    let width = parent.client_width() as f64;
+                    // let height = parent.client_height() as f64;
+                    let height = width * 0.6;
 
-                        // Set the canvas dimensions to match its parent's dimensions
-                        // Set the canvas dimensions to match its parent's dimensions
-                        canvas.set_width((width * device_pixel_ratio) as u32);
-                        canvas.set_height((height * device_pixel_ratio) as u32);
+                    // Set the canvas dimensions to match its parent's dimensions
+                    // Set the canvas dimensions to match its parent's dimensions
+                    canvas.set_width((width * device_pixel_ratio) as u32);
+                    canvas.set_height((height * device_pixel_ratio) as u32);
 
-                        // Scale the context to account for the device pixel ratio
-                        context
-                            .scale(device_pixel_ratio, device_pixel_ratio)
-                            .unwrap();
+                    // Scale the context to account for the device pixel ratio
+                    context
+                        .scale(device_pixel_ratio, device_pixel_ratio)
+                        .unwrap();
 
-                        draw_multiline_chart(&context, width, height, &props_clone_resize);
-                    }
-                };
+                    draw_multiline_chart(&context, width, height, &props_clone_resize);
+                }
+            };
 
-                resize_callback(); // Initial call to set canvas size
+            resize_callback(); // Initial call to set canvas size
 
-                let listener = EventListener::new(&window().unwrap(), "resize", move |_event| {
-                    resize_callback();
-                });
+            let listener = EventListener::new(&window().unwrap(), "resize", move |_event| {
+                resize_callback();
+            });
 
-                move || drop(listener) // Clean up the event listener on component unmount
-            }
-        );
+            move || drop(listener) // Clean up the event listener on component unmount
+        });
     }
 
     // Render the legend if enabled
@@ -293,12 +352,13 @@ fn draw_multiline_chart(
     if !props.config.x_axis_title.is_empty() {
         context.set_text_align("center");
         context.set_font("bold 12px Arial");
-        context.fill_text(
-            &props.config.x_axis_title,
-            width / 2.0,
-            height - (axis_padding / 4.0),
-        )
-        .unwrap();
+        context
+            .fill_text(
+                &props.config.x_axis_title,
+                width / 2.0,
+                height - (axis_padding / 4.0),
+            )
+            .unwrap();
     }
 
     // Draw y-axis title
@@ -314,12 +374,13 @@ fn draw_multiline_chart(
         context.rotate(-std::f64::consts::PI / 2.0).unwrap();
 
         // Translate context to draw on rotated canvas
-        context.fill_text(
-            &props.config.y_axis_title,
-            -(height / 2.0),
-            axis_padding / 4.0,
-        )
-        .unwrap();
+        context
+            .fill_text(
+                &props.config.y_axis_title,
+                -(height / 2.0),
+                axis_padding / 4.0,
+            )
+            .unwrap();
 
         // Restore context state to avoid affecting other drawings
         context.restore();
@@ -361,39 +422,30 @@ mod tests {
         let props = LineCurveChartProps {
             data: vec![
                 (
-                    Series {
-                        name: "Dataset 1".to_string(),
-                        color: "#ff0000".to_string(),
-                    },
+                    Series::new("Dataset 1", "#ff0000"),
                     vec![
-                        DataPoint { y: 10 },
-                        DataPoint { y: 20 },
-                        DataPoint { y: 15 },
-                        DataPoint { y: 40 },
-                        DataPoint { y: 30 },
+                        DataPoint::new(10),
+                        DataPoint::new(20),
+                        DataPoint::new(15),
+                        DataPoint::new(40),
+                        DataPoint::new(30),
                     ],
                 ),
                 (
-                    Series {
-                        name: "Dataset 2".to_string(),
-                        color: "#00ff00".to_string(),
-                    },
+                    Series::new("Dataset 2", "#00ff00"),
                     vec![
-                        DataPoint { y: 50 },
-                        DataPoint { y: 40 },
-                        DataPoint { y: 30 },
-                        DataPoint { y: 35 },
-                        DataPoint { y: 20 },
+                        DataPoint::new(50),
+                        DataPoint::new(40),
+                        DataPoint::new(30),
+                        DataPoint::new(35),
+                        DataPoint::new(20),
                     ],
                 ),
             ],
-            x: vec![
-                "0".to_string(),
-                "1".to_string(),
-                "2".to_string(),
-                "3".to_string(),
-                "4".to_string(),
-            ],
+            x: vec!["0", "1", "2", "3", "4"]
+                .into_iter()
+                .map(|s| s.to_string())
+                .collect(),
             config: LineCurveChartConfig {
                 show_grid: true,
                 show_legend: true,
@@ -407,7 +459,7 @@ mod tests {
                 stroke_width: 2,
                 show_area_chart: true,
                 x_axis_title: "Day of the Week".to_string(),
-                y_axis_title: "Amount($)".to_string()
+                y_axis_title: "Amount($)".to_string(),
             },
         };
 
